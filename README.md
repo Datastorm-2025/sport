@@ -1,38 +1,38 @@
-# Hướng dẫn Chạy trên Linux
+# Running Guide for Linux
 
-## Mục lục
+## Table of Contents
 
-- [Cài đặt Docker](#cài-đặt-docker)
-- [Cấu hình Docker](#cấu-hình-docker)
+- [Install Docker](#install-docker)
+- [Configure Docker](#configure-docker)
 - [Build Image](#build-image)
 - [Validate & Push](#validate--push)
-- [Cách BTC chạy Image](#cách-btc-chạy-image)
+- [How the Organizers Run the Image](#how-the-organizers-run-the-image)
 
 ---
 
-## Cài đặt Docker
+## Install Docker
 
-Tải và cài đặt Docker theo hướng dẫn tại: <https://docs.docker.com/get-started/get-docker/>
+Download and install Docker following the guide at: <https://docs.docker.com/get-started/get-docker/>
 
-Kiểm tra phiên bản Docker đã cài đặt:
+Check the installed Docker version:
 
 ```bash
 sudo docker --version
 ```
 
-Kiểm tra trạng thái Docker service:
+Check the Docker service status:
 
 ```bash
 sudo systemctl status docker
 ```
 
-Kiểm tra các container đang chạy:
+Check running containers:
 
 ```bash
 docker ps
 ```
 
-Khởi động Docker service (nếu chưa chạy):
+Start Docker service (if not running):
 
 ```bash
 sudo systemctl start docker
@@ -40,7 +40,7 @@ sudo systemctl start docker
 
 ---
 
-## Cấu hình Docker
+## Configure Docker
 
 ### 1. Clone Repository
 
@@ -50,15 +50,15 @@ git clone <>
 cd sport
 ```
 
-### 2. Cấu hình Docker Daemon
+### 2. Configure Docker Daemon
 
-Mở file cấu hình Docker:
+Open the Docker configuration file:
 
 ```bash
 sudo nano /etc/docker/daemon.json
 ```
 
-Thêm nội dung sau vào file:
+Add the following content to the file:
 
 ```json
 {
@@ -68,41 +68,41 @@ Thêm nội dung sau vào file:
       "path": "nvidia-container-runtime"
     }
   },
-  "insecure-registries": ["222.255.250.24:8002"], // Thêm domain vào
+  "insecure-registries": ["222.255.250.24:8002"], // Add the domain here
   "max-concurrent-uploads": 1
 }
 ```
 
-> **Lưu ý:**
-> - `insecure-registries`: Thêm domain registry của BTC
-> - `max-concurrent-uploads`: Đặt bằng 1 để tránh tràn RAM khi push
+> **Note:**
+> - `insecure-registries`: Add the organizer's registry domain
+> - `max-concurrent-uploads`: Set to 1 to avoid RAM overflow when pushing
 
-### 3. Khởi động lại Docker
+### 3. Restart Docker
 
 ```bash
 sudo systemctl restart docker
 ```
 
-### 4. Đăng nhập Registry
+### 4. Login to Registry
 
 ```bash
-docker login DOMA222.255.250.24:8002 -u <team_id>
+docker login 222.255.250.24:8002 -u <team_id>
 ```
 
-> **Lưu ý:** Sử dụng tài khoản được BTC cung cấp để đăng nhập.
+> **Note:** Use the account provided by the organizers to log in.
 
 ---
 
 ## Build Image
 
-Build Docker image với cache từ base image:
+Build Docker image with cache from base image:
 
 ```bash
-docker build   --cache-from 222.255.250.24:8001/data-storm/pytorch:2.8.0-cuda12.8-cudnn9-devel \
--t DOMAIN/TEAM_ID/submission .
+docker build --cache-from 222.255.250.24:8001/data-storm/pytorch:2.8.0-cuda12.8-cudnn9-devel \
+  -t DOMAIN/TEAM_ID/submission .
 ```
 
-> **Lưu ý:** Sử dụng thẻ `--cache-from` tối ưu hoá tốc độ push bài.
+> **Note:** Use the `--cache-from` tag to optimize push speed.
 
 ---
 
@@ -110,7 +110,7 @@ docker build   --cache-from 222.255.250.24:8001/data-storm/pytorch:2.8.0-cuda12.
 
 ### Validate Submission
 
-Chạy script kiểm tra bài nộp trước khi push:
+Run the validation script before pushing:
 
 ```bash
 bash validate_submission.sh
@@ -124,9 +124,9 @@ docker push 222.255.250.24:8002/<team_id>/submission
 
 ---
 
-## Cách BTC Chạy Image
+## How the Organizers Run the Image
 
-Đoạn code mà Ban tổ chức sẽ sử dụng để chạy image của thí sinh:
+The code that the organizers will use to run participants' images:
 
 ```bash
 docker run --rm --network none --gpus '"device=1"' \
@@ -137,12 +137,12 @@ docker run --rm --network none --gpus '"device=1"' \
   DOMAIN/your_team/submission
 ```
 
-| Tham số | Mô tả |
-|---------|-------|
-| `--rm` | Tự động xóa container sau khi chạy xong |
-| `--network none` | Tắt kết nối mạng |
-| `--gpus '"device=1"'` | Sử dụng GPU device 1 |
-| `-v /path/to/input:/data/input:ro` | Mount thư mục input (read-only) |
-| `-v /path/to/results:/data/output` | Mount thư mục output |
-| `-e INPUT_PATH` | Biến môi trường đường dẫn input |
-| `-e OUTPUT_PATH` | Biến môi trường đường dẫn output |
+| Parameter | Description |
+|-----------|-------------|
+| `--rm` | Automatically remove container after execution |
+| `--network none` | Disable network connection |
+| `--gpus '"device=1"'` | Use GPU device 1 |
+| `-v /path/to/input:/data/input:ro` | Mount input directory (read-only) |
+| `-v /path/to/results:/data/output` | Mount output directory |
+| `-e INPUT_PATH` | Environment variable for input path |
+| `-e OUTPUT_PATH` | Environment variable for output path |
