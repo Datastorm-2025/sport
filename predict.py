@@ -2,20 +2,20 @@ import os
 import sys
 import csv
 
-# Thêm src vào path để import example_perdictor
+# Add src to path to import example_perdictor
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 from src.example_perdictor import predictor
 
-# Sử dụng environment variables hoặc đường dẫn mặc định
+# Use environment variables or default paths
 INPUT_PATH = os.environ.get('INPUT_PATH', os.path.join(BASE_DIR, 'example', 'input'))
 OUTPUT_PATH = os.environ.get('OUTPUT_PATH', os.path.join(BASE_DIR, 'example', 'output'))
 OUTPUT_FILENAME = 'submission.csv'
 
-# Các band score hợp lệ
+# Valid band scores
 VALID_BANDS = ['band_1_2', 'band_2_4', 'band_4_6', 'band_6_8', 'band_8_10']
 
-# Extensions video được hỗ trợ
+# Supported video extensions
 VIDEO_EXTENSIONS = ['.mov', '.mp4', '.avi', '.mkv', '.wmv', '.flv']
 
 def validate_paths():
@@ -59,14 +59,14 @@ def save_predictions(results, output_filename=OUTPUT_FILENAME):
     """
     Save predictions to CSV file.
     
-    Format output (CỐ ĐỊNH - KHÔNG THAY ĐỔI):
+    Format output (FIXED - DO NOT CHANGE):
         file_name,score
         video1.mov,band_1_2
         video2.mov,band_4_6
     
     Args:
         results: List of tuples (file_name, score)
-        output_filename: Tên file output (mặc định: submission.csv - CỐ ĐỊNH)
+        output_filename: Output filename (default: submission.csv - FIXED)
     """
     output_file = os.path.join(OUTPUT_PATH, output_filename)
     
